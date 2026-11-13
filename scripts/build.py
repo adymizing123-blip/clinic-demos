@@ -90,6 +90,13 @@ ICONS = {
     "copy": '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
     "external": '<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
     "directions": '<path d="M3 11 22 2l-9 19-2-8Z"/>',
+    "arrow": '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
+    "award": '<circle cx="12" cy="8" r="6"/><path d="M15.5 13.2 17 22l-5-3-5 3 1.5-8.8"/>',
+    "sparkle": '<path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8Z"/>',
+    "clipboard": '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+    "users": '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    "receipt": '<path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 2 2V2l-2 2-3-2-3 2-3-2-3 2Z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+    "calendar-check": '<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/><path d="m9 15 2 2 4-4"/>',
 }
 
 
@@ -105,35 +112,53 @@ def icon(name: str, cls: str = "icon", filled: bool = False) -> str:
 FALLBACK_JS = "this.parentNode.classList.add('is-fallback');this.remove()"
 
 
-def img_url(ref: str, width: int, height: int | None = None) -> str:
+def img_url(ref: str, width: int, height: int | None = None, faces: bool = False) -> str:
     if ref.startswith("photo-"):
         crop = f"&h={height}" if height else ""
-        return f"https://images.unsplash.com/{ref}?auto=format&fit=crop&w={width}{crop}&q=75"
+        focus = "&crop=faces" if faces else ""
+        return f"https://images.unsplash.com/{ref}?auto=format&fit=crop{focus}&w={width}{crop}&q=75"
     return ref
 
 
-def picture(ref: str | None, alt: str, widths: tuple[int, ...], sizes: str, ratio: tuple[int, int], eager: bool = False) -> str:
+def picture(ref: str | None, alt: str, widths: tuple[int, ...], sizes: str, ratio: tuple[float, float],
+            eager: bool = False, faces: bool = False) -> str:
     if not ref:
         return ""
     w0 = widths[-1]
     h0 = round(w0 * ratio[1] / ratio[0])
     srcset = ""
     if ref.startswith("photo-"):
-        srcset = ", ".join(f"{img_url(ref, w, round(w * ratio[1] / ratio[0]))} {w}w" for w in widths)
+        srcset = ", ".join(f"{img_url(ref, w, round(w * ratio[1] / ratio[0]), faces)} {w}w" for w in widths)
         srcset = f' srcset="{e(srcset)}" sizes="{e(sizes)}"'
     loading = 'fetchpriority="high"' if eager else 'loading="lazy"'
-    return (f'<img src="{e(img_url(ref, w0, h0))}"{srcset} alt="{e(alt)}" width="{w0}" height="{h0}" '
+    return (f'<img src="{e(img_url(ref, w0, h0, faces))}"{srcset} alt="{e(alt)}" width="{w0}" height="{h0}" '
             f'{loading} decoding="async" onerror="{FALLBACK_JS}">')
+
+
+def media(ref: str | None, alt: str, cls: str, widths: tuple[int, ...], sizes: str, ratio: tuple[float, float],
+          fallback_icon: str, eager: bool = False, faces: bool = False, extra: str = "", attrs: str = "") -> str:
+    """A photo in a frame, with a designed fallback in the specialty colour."""
+    img = picture(ref, alt, widths, sizes, ratio, eager, faces)
+    fb = "" if ref else " is-fallback"
+    return (f'<div class="media {cls}{fb}"{attrs}>{img}'
+            f'<div class="media__fallback" aria-hidden="true">{icon(fallback_icon)}</div>{extra}</div>')
 
 
 # ---------------------------------------------------------------------------
 # Placeholder doctors (deterministic). Replace with the real doctor's details
-# when you customise a demo for a client.
+# when you customise a demo for a client. Photo ids are checked Unsplash photos.
 # ---------------------------------------------------------------------------
 DOCTOR_PHOTOS = {
-    "f": ["photo-1559839734-2b71ea197ec2", "photo-1594824476967-48c8b964273f"],
-    "m": ["photo-1612349317150-e413f6a5b16d", "photo-1622253692010-333f2da6031d", "photo-1537368910025-700350fe46c7"],
+    "f": ["photo-1638202993928-7267aad84c31", "photo-1594824476967-48c8b964273f", "photo-1559839734-2b71ea197ec2",
+          "photo-1659353888906-adb3e0041693", "photo-1584432810601-6c7f27d2362b", "photo-1758691462651-611d730c5272",
+          "photo-1770134223774-13b735e29201", "photo-1736289173074-df6009da27c9"],
+    "m": ["photo-1612349317150-e413f6a5b16d", "photo-1758691463582-11aea602cd4a", "photo-1622253692010-333f2da6031d",
+          "photo-1637059824899-a441006a6875", "photo-1645066928295-2506defde470", "photo-1758691463393-a2aa9900af8a",
+          "photo-1758691461513-88a0aef72160", "photo-1712215544003-af10130f8eb3"],
 }
+GALLERY = [("photo-1764727291644-5dcb0b1a0375", "Reception"), ("photo-1762625570087-6d98fca29531", "Waiting area"),
+           ("photo-1704455306925-1401c3012117", "Treatment room")]
+WHY_PHOTOS = ["photo-1758691462071-757bca955439", "photo-1758691463198-dc663b8a64e4", "photo-1666886573531-48d2e3c2b684"]
 FIRST = {
     "f": ["Ayesha", "Hira", "Sana", "Mahnoor", "Fatima", "Zainab", "Amna", "Rabia", "Mehwish", "Saba", "Nida", "Iqra",
           "Maryam", "Sadia", "Kiran", "Anum", "Farah", "Bushra", "Asma", "Sidra", "Huma", "Rida", "Noor", "Aiman"],
@@ -180,10 +205,10 @@ def initials(name: str) -> str:
     return (parts[0][0] + parts[-1][0]).upper()
 
 
-def make_clinic(spec: dict) -> None:
+def make_clinic(spec: dict, index: int) -> None:
     rng = random.Random(spec["slug"])
     genders = ["f", "f", "f"] if spec.get("femaleOnly") else rng.choice(GENDER_PATTERNS)
-    photo_i = {"f": 0, "m": 0}
+    used = {"f": 0, "m": 0}
     doctors = []
     for g in genders:
         while True:
@@ -193,8 +218,8 @@ def make_clinic(spec: dict) -> None:
                 break
         full = name if spec.get("noTitle") else f"Dr. {name}"
         pool = DOCTOR_PHOTOS[g]
-        photo = pool[photo_i[g]] if photo_i[g] < len(pool) else None
-        photo_i[g] += 1
+        photo = pool[(index * 3 + used[g]) % len(pool)]  # different faces on different demos, never repeated on one
+        used[g] += 1
         doctors.append({
             "name": full, "initials": initials(full), "gender": g, "photo": photo,
             "quals": rng.choice(QUALS[spec["slug"]]), "years": rng.randint(6, 24),
@@ -202,18 +227,24 @@ def make_clinic(spec: dict) -> None:
             "fee": rng.randrange(spec["feeMin"], spec["feeMax"] + 1, 500),
             "slot": rng.choice(SLOTS), "days": rng.choice(DAYS),
         })
-    # the most experienced doctor with a photo leads the clinic
-    doctors.sort(key=lambda d: (d["photo"] is None, -d["years"]))
+    doctors.sort(key=lambda d: -d["years"])  # the most experienced doctor leads the clinic
     area, city = rng.choice(AREAS)
     spec["doctors"] = doctors
     spec["lead"] = doctors[0]
     spec["area"], spec["city"] = area, city
     spec["address"] = f"{SITE['street']}, {area}, {city}"
     spec["hours"] = rng.choice(HOURS)
+    spec["why_photo"] = WHY_PHOTOS[index % len(WHY_PHOTOS)]
+    total_reviews = sum(d["reviews"] for d in doctors)
+    spec["review_count"] = total_reviews
+    spec["avg_rating"] = round(sum(d["rating"] for d in doctors) / len(doctors), 1)
+    spec["patients"] = round(total_reviews * 18 / 500) * 500
+    sunday = spec["hours"][-1][1]
+    spec["open_days"] = 6 if sunday in ("Closed", "By appointment") else 7
 
 
-for _s in SPECS:
-    make_clinic(_s)
+for _i, _s in enumerate(SPECS):
+    make_clinic(_s, _i)
 
 
 def rs(n: int) -> str:
@@ -274,6 +305,7 @@ def head(title: str, desc: str, url: str, theme_color: str, prefix: str = "") ->
 <meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(desc)}">
 <meta property="og:url" content="{e(url)}">
+<script>document.documentElement.classList.add('js')</script>
 <link rel="icon" href="{prefix}assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -286,16 +318,29 @@ def head(title: str, desc: str, url: str, theme_color: str, prefix: str = "") ->
 
 def brand(spec: dict) -> str:
     d = spec["demo"]
-    return f"""<a class="brand brand--clinic" href="#top" aria-label="{e(d['clinic'])} home">
+    return f"""<a class="brand" href="#top" aria-label="{e(d['clinic'])} home">
       <span class="brand__mark">{icon(spec['icon'])}</span>
       <span class="brand__text"><span class="brand__name">{e(d['short'])}</span><span class="brand__tag">{e(d['tag'])}</span></span>
     </a>"""
 
 
+def topbar(spec: dict) -> str:
+    day, time = spec["hours"][0]
+    return f"""<div class="topbar">
+  <div class="container topbar__inner">
+    <span class="topbar__item">{icon('clock')}{e(day)}: {e(time)}</span>
+    <span class="topbar__item">{icon('pin')}{e(spec['address'])}</span>
+    <a class="topbar__item topbar__item--end" href="{tel(SITE['phone'])}">{icon('phone')}Appointments: {e(SITE['phone'])}</a>
+  </div>
+</div>"""
+
+
 def header(spec: dict) -> str:
     return f"""
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header" id="top">
+<span id="top"></span>
+{topbar(spec)}
+<header class="site-header">
   <div class="container site-header__inner">
     {brand(spec)}
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
@@ -309,7 +354,7 @@ def header(spec: dict) -> str:
         <li><a href="#treatments">Treatments</a></li>
         <li><a href="#doctors">Doctors</a></li>
         <li><a href="#reviews">Reviews</a></li>
-        <li><a href="#visit">Visit us</a></li>
+        <li><a href="#visit">Contact</a></li>
       </ul>
       <a class="site-nav__phone" href="{tel(SITE['phone'])}">{icon('phone')}{e(SITE['phone'])}</a>
       <button class="btn btn-accent site-nav__cta" type="button" data-book>Book appointment</button>
@@ -320,7 +365,7 @@ def header(spec: dict) -> str:
 
 def pulse_line() -> str:
     return """
-<div class="pulse pulse--accent" aria-hidden="true">
+<div class="pulse" aria-hidden="true">
   <svg viewBox="0 0 1200 100" preserveAspectRatio="none" focusable="false">
     <path class="pulse__base" vector-effect="non-scaling-stroke" d="M0 62H470l14-9 14 9h36"/>
     <path class="pulse__beat" vector-effect="non-scaling-stroke" d="M534 62l10 12 16-64 17 76 12-24"/>
@@ -329,34 +374,19 @@ def pulse_line() -> str:
 </div>"""
 
 
-def avatar(doc: dict, cls: str, widths=(160, 320), sizes="96px", ratio=(1, 1)) -> str:
-    img = picture(doc["photo"], f"Portrait of {doc['name']}", widths, sizes, ratio)
+def avatar(doc: dict, cls: str, widths=(120, 240), sizes="60px", ratio=(1, 1)) -> str:
+    img = picture(doc["photo"], f"Portrait of {doc['name']}", widths, sizes, ratio, faces=True)
     fallback = "" if doc["photo"] else " is-fallback"
-    return f'<div class="avatar {cls}{fallback}">{img}<span class="avatar__initials" aria-hidden="true">{e(doc["initials"])}</span></div>'
+    return (f'<div class="avatar media {cls}{fallback}">{img}'
+            f'<span class="media__fallback avatar__initials" aria-hidden="true">{e(doc["initials"])}</span></div>')
 
 
 def book_attrs(doc: dict | None = None) -> str:
     return f' data-doctor="{e(doc["name"])}"' if doc else ""
 
 
-def doctor_row(doc: dict) -> str:
-    return f"""<li class="doc-row">
-  {avatar(doc, 'avatar--row')}
-  <div class="doc-row__main">
-    <h3 class="doc-row__name">{e(doc['name'])}</h3>
-    <p class="doc-row__quals">{e(doc['quals'])}</p>
-    <ul class="meta">
-      <li>{icon('briefcase')}{doc['years']} years experience</li>
-      <li>{icon('star', filled=True)}<span><strong>{doc['rating']}</strong> ({doc['reviews']} reviews)</span></li>
-      <li>{icon('calendar')}Sees patients {e(doc['days'])}</li>
-    </ul>
-  </div>
-  <div class="doc-row__aside">
-    <p class="doc-row__fee"><span>Fee</span>{rs(doc['fee'])}</p>
-    <p class="doc-row__slot">{icon('clock')}Next: {e(doc['slot'])}</p>
-    <button class="btn btn-accent" type="button" data-book{book_attrs(doc)}>Book</button>
-  </div>
-</li>"""
+def stars(n: int = 5) -> str:
+    return f'<span class="stars" aria-hidden="true">{icon("star", filled=True) * n}</span>'
 
 
 def booking_dialog(spec: dict) -> str:
@@ -400,7 +430,7 @@ def booking_dialog(spec: dict) -> str:
         <legend>Time of day</legend>
         <div class="chips">{chips('time', [('Morning', 'Morning'), ('Afternoon', 'Afternoon'), ('Evening', 'Evening')], 'Evening')}</div>
       </fieldset>
-      <button class="btn btn-accent btn-block" type="submit">Request appointment</button>
+      <button class="btn btn-accent btn-block btn-lg" type="submit">Request appointment</button>
       <p class="booking__fine">The clinic replies on WhatsApp to confirm your exact time and token number.</p>
     </form>
     <div class="booking__done" hidden>
@@ -419,8 +449,125 @@ def booking_dialog(spec: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Hero variants
+# ---------------------------------------------------------------------------
+def hero_copy(spec: dict, light: bool = False) -> str:
+    d, lead = spec["demo"], spec["lead"]
+    call_cls = "btn-outline-light" if light else "btn-ghost"
+    faces = "".join(avatar(doc, "", (96, 160), "46px") for doc in spec["doctors"])
+    return f"""<div class="hero__copy">
+        <p class="hero__place" data-reveal><span class="hero__place-dot" aria-hidden="true"></span>{e(d['clinic'])}, {e(spec['area'])}, {e(spec['city'])}</p>
+        <h1 class="display hero__title" data-reveal style="--d:80ms">{e(d['headline'])}</h1>
+        <p class="hero__lede" data-reveal style="--d:160ms">{e(spec['intro'])}</p>
+        <div class="hero__actions" data-reveal style="--d:240ms">
+          <button class="btn btn-accent btn-lg" type="button" data-book>{icon('calendar-check')}Book appointment</button>
+          <a class="btn {call_cls} btn-lg" href="{tel(SITE['phone'])}">{icon('phone')}Call {e(SITE['phone'])}</a>
+        </div>
+        <div class="hero__trust" data-reveal style="--d:320ms">
+          <div class="avatars">{faces}</div>
+          <p class="hero__trust-text">{stars()} <strong>{spec['avg_rating']}</strong> average rating<br>from {spec['review_count']:,} patient reviews</p>
+        </div>
+      </div>"""
+
+
+def token_slip(spec: dict) -> str:
+    lead = spec["lead"]
+    return f"""<div class="slip" aria-hidden="true">
+          <div class="slip__top">
+            <div><span class="slip__label">Your token</span><span class="slip__num">14</span></div>
+            <p class="slip__now"><span class="slip__dot"></span>Now seeing <strong>11</strong></p>
+          </div>
+          <div class="slip__perf"></div>
+          <div class="slip__body">
+            <p class="slip__doctor">{e(lead['name'])}</p>
+            <p class="slip__spec">{e(cap(spec['specialist']))}</p>
+            <p class="slip__line">{icon('clock')}{e(lead['slot'])}</p>
+          </div>
+        </div>"""
+
+
+def hero_a(spec: dict) -> str:
+    alt = f"{spec['name']} care at {spec['demo']['clinic']}"
+    main_img = media(spec["image"], alt, "collage__main", (560, 820, 1100), "(min-width: 900px) 46vw, 92vw", (4, 4.6), spec["icon"], eager=True)
+    second = media(spec["image2"], f"Inside {spec['demo']['clinic']}", "collage__second", (320, 480), "220px", (1, 1), spec["icon"])
+    return f"""<section class="hero hero--a">
+    <span class="hero__glow hero__glow--1" aria-hidden="true"></span>
+    <span class="hero__glow hero__glow--2" aria-hidden="true"></span>
+    <span class="hero__dots" aria-hidden="true"></span>
+    <div class="container hero__grid">
+      {hero_copy(spec)}
+      <div class="hero__visual" data-reveal="zoom" style="--d:200ms">
+        <div class="collage">
+          <span class="collage__ring" aria-hidden="true"></span>
+          {main_img}
+          {second}
+          <div class="float-card float-card--rating float-card--bob">
+            <span class="float-card__icon">{icon('award')}</span>
+            <div><strong>{spec['lead']['years']}+ years</strong><span>of specialist experience</span></div>
+          </div>
+          {token_slip(spec)}
+        </div>
+      </div>
+    </div>
+    {pulse_line()}
+  </section>"""
+
+
+def hero_b(spec: dict) -> str:
+    alt = f"{spec['name']} care at {spec['demo']['clinic']}"
+    photo = media(spec["image"], alt, "hero__photo", (900, 1400, 2000), "100vw", (16, 9), spec["icon"], eager=True)
+    next_slot = min((doc["slot"] for doc in spec["doctors"]), key=SLOTS.index)
+    return f"""<section class="hero hero--b">
+    {photo}
+    <div class="hero__shade" aria-hidden="true"></div>
+    <div class="container hero__grid">
+      {hero_copy(spec, light=True)}
+      <form class="quick-book" data-quick data-reveal="right" style="--d:250ms" novalidate>
+        <h2 class="quick-book__title">Book a visit</h2>
+        <p class="quick-book__sub">Takes less than a minute. We confirm on WhatsApp.</p>
+        <div class="field">
+          <label for="q-name">Patient's name</label>
+          <input id="q-name" name="name" autocomplete="name" placeholder="Full name">
+        </div>
+        <div class="field">
+          <label for="q-phone">Mobile number</label>
+          <input id="q-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0300 1234567">
+        </div>
+        <div class="field">
+          <label for="q-day">Day</label>
+          <select id="q-day" name="day"><option>Today</option><option>Tomorrow</option><option value="date">Pick a date</option></select>
+        </div>
+        <p class="quick-book__slot">{icon('clock')}Next free slot: <strong>{e(next_slot)}</strong></p>
+        <button class="btn btn-accent btn-block btn-lg" type="submit">Continue booking{icon('arrow', 'icon icon--arrow')}</button>
+      </form>
+    </div>
+  </section>"""
+
+
+def hero_c(spec: dict) -> str:
+    alt = f"{spec['name']} care at {spec['demo']['clinic']}"
+    banner = media(spec["image"], alt, "banner__media", (700, 1100, 1600), "(min-width: 1220px) 1180px, 94vw", (21, 9), spec["icon"], eager=True)
+    return f"""<section class="hero hero--c">
+    <div class="container">
+      {hero_copy(spec)}
+      <div class="banner" data-reveal="zoom" style="--d:280ms">
+        {banner}
+        <div class="banner__cards">
+          <div class="float-card float-card--bob"><span class="float-card__icon">{icon('shield')}</span><div><strong>PMDC registered</strong><span>Qualified, verified doctors</span></div></div>
+          <div class="float-card float-card--bob-alt"><span class="float-card__icon">{icon('message')}</span><div><strong>WhatsApp booking</strong><span>Confirmed within the hour</span></div></div>
+          <div class="float-card float-card--bob"><span class="float-card__icon">{icon('receipt')}</span><div><strong>Clear fees</strong><span>Shared before treatment</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>"""
+
+
+# ---------------------------------------------------------------------------
 # A clinic site
 # ---------------------------------------------------------------------------
+SERVICE_ICONS = [None, "clipboard", "sparkle", "shield", "calendar-check", "award"]
+
+
 def build_clinic(spec: dict) -> str:
     d = spec["demo"]
     lead = spec["lead"]
@@ -428,166 +575,221 @@ def build_clinic(spec: dict) -> str:
     who, who_pl = spec["specialist"], spec["specialists"]
     clinic = d["clinic"]
     layout = d["layout"]
-    next_slot = min((doc["slot"] for doc in docs), key=SLOTS.index)
     url = f"{SITE['baseUrl'].rstrip('/')}/{d['path']}/"
+    hero = {"a": hero_a, "b": hero_b, "c": hero_c}[layout](spec)
+    wa_question = wa(f"Assalam o Alaikum, I have a question for {clinic}.")
 
-    ratio = (16, 9) if layout == "c" else (4, 5)
-    hero_img = picture(spec["image"], f"{spec['name']} care at {clinic}", (560, 900, 1400) if layout == "c" else (480, 760, 1000),
-                       "(min-width: 960px) 1100px, 94vw" if layout == "c" else "(min-width: 960px) 44vw, 92vw", ratio, eager=True)
-    lead_img = avatar(lead, "avatar--portrait", (420, 720), "(min-width: 960px) 380px, 90vw", (4, 5))
-
-    hours_rows = "".join(f"<div><dt>{e(day)}</dt><dd>{e(time)}</dd></div>" for day, time in spec["hours"])
-    hours_short = spec["hours"][0][1]
-    conditions = "".join(f"<li>{e(c)}</li>" for c in spec["conditions"])
-    services = "".join(f'<li class="service"><h3 class="service__name">{e(s["name"])}</h3><p>{e(s["desc"])}</p></li>' for s in spec["services"])
-    signs = "".join(f'<li>{icon("check")}<span>{e(s)}</span></li>' for s in spec["signs"])
-    faqs = "".join(
-        f'<details class="faq"><summary><span>{e(f["q"])}</span>{icon("plus", "icon faq__icon")}</summary>'
-        f'<div class="faq__answer"><p>{e(f["a"])}</p></div></details>' for f in spec["faqs"])
-    reviews = "".join(
-        f'<li class="quote"><div class="quote__stars" aria-label="5 out of 5 stars">{icon("star", filled=True) * 5}</div>'
-        f'<blockquote><p>{e(r["q"])}</p></blockquote>'
-        f'<p class="quote__by"><strong>{e(r["n"])}</strong><span>{e(r["c"])}</span></p></li>' for r in d["reviews"])
-
-    if spec.get("alert"):
-        side = f"""<aside class="callout callout--alert" role="note">
-          {icon('alert', 'icon callout__icon')}
-          <div><h3>When it can't wait</h3><p>{e(spec['alert'])}</p></div>
-        </aside>"""
-    else:
-        side = f"""<aside class="callout">
-          {icon('message', 'icon callout__icon')}
-          <div><h3>Not sure if you need to come in?</h3>
-          <p>Send us a message on WhatsApp. Our team will tell you whether you need a visit and which doctor to see.</p>
-          <a class="text-link" href="{e(wa(f'Assalam o Alaikum, I have a question for {clinic}.'))}" target="_blank" rel="noopener">Message us on WhatsApp</a></div>
-        </aside>"""
-
-    title = f"{clinic}: {who_pl} in {spec['city']}"
-    desc = f"{clinic} in {spec['area']}, {spec['city']}. Book {article(who)} {who} for {spec['for'].lower()} and more."
-
-    hero_slip = f"""<div class="slip slip--hero" aria-hidden="true">
-          <div class="slip__top">
-            <div class="slip__token"><span class="slip__label">Your token</span><span class="slip__num">14</span></div>
-            <p class="slip__now"><span class="slip__dot"></span>Now seeing <strong>11</strong></p>
-          </div>
-          <div class="slip__perf"></div>
-          <div class="slip__body">
-            <p class="slip__doctor">{e(lead['name'])}</p>
-            <p class="slip__spec">{e(cap(who))}</p>
-            <p class="slip__line">{icon('clock')}{e(lead['slot'])}</p>
-            <p class="slip__line">{icon('pin')}{e(spec['area'])}, {e(spec['city'])}</p>
-          </div>
-        </div>"""
-
-    body = f"""{header(spec)}
-<main id="main">
-  <section class="hero hero--{layout} ecg ecg--accent">
-    <div class="container hero__grid">
-      <div class="hero__copy">
-        <p class="hero__clinic">{icon('pin')}{e(clinic)}, {e(spec['area'])}, {e(spec['city'])}</p>
-        <h1 class="display hero__title">{e(d['headline'])}</h1>
-        <p class="hero__lede">{e(spec['intro'])}</p>
-        <div class="hero__actions">
-          <button class="btn btn-accent" type="button" data-book>Book appointment</button>
-          <a class="btn btn-ghost" href="{tel(SITE['phone'])}">{icon('phone')}Call {e(SITE['phone'])}</a>
-        </div>
-        <ul class="hero__facts">
-          <li>{icon('briefcase')}<span><strong>{lead['years']} years</strong> of experience</span></li>
-          <li>{icon('star', filled=True)}<span><strong>{lead['rating']}</strong> from {lead['reviews']} patients</span></li>
-          <li>{icon('clock')}<span>Next slot <strong>{e(next_slot)}</strong></span></li>
-        </ul>
-      </div>
-      <div class="hero__visual">
-        <div class="media media--hero">
-          {hero_img}
-          <div class="media__fallback" aria-hidden="true">{icon(spec['icon'], 'icon media__fallback-icon')}</div>
-        </div>
-        {hero_slip}
+    stats = f"""<section class="stats-band" aria-label="Clinic at a glance">
+    <div class="container">
+      <div class="stats" data-reveal>
+        <div class="stat"><span class="stat__num" data-count="{lead['years']}" data-suffix="+">{lead['years']}+</span><span class="stat__label">Years of experience</span></div>
+        <div class="stat"><span class="stat__num" data-count="{spec['patients']}" data-suffix="+">{spec['patients']:,}+</span><span class="stat__label">Patients treated</span></div>
+        <div class="stat"><span class="stat__num" data-count="{spec['avg_rating']}" data-decimals="1">{spec['avg_rating']}</span><span class="stat__label">Average patient rating</span></div>
+        <div class="stat"><span class="stat__num" data-count="{spec['open_days']}" data-suffix=" days">{spec['open_days']} days</span><span class="stat__label">Open every week</span></div>
       </div>
     </div>
-    {pulse_line()}
-  </section>
+  </section>"""
 
-  <section class="section" id="about" aria-labelledby="about-title">
+    about_main = media(lead["photo"], f"Portrait of {lead['name']}", "about__main", (480, 760), "(min-width: 900px) 40vw, 90vw", (4, 5), spec["icon"], faces=True)
+    about_second = media(GALLERY[0][0], f"Reception at {clinic}", "about__second", (360, 540), "260px", (4, 3.4), spec["icon"])
+    ticks = "".join(f"<li>{icon('check')}<span>{e(t)}</span></li>" for t in
+                    ["PMDC-registered doctors", "Fees shared before treatment", "Sterilised, modern equipment", "WhatsApp booking and reminders"])
+    about = f"""<section class="section" id="about" aria-labelledby="about-title">
     <div class="container about">
-      <figure class="lead-card">
-        {lead_img}
-        <figcaption>
-          <p class="lead-card__name">{e(lead['name'])}</p>
-          <p class="lead-card__quals">{e(lead['quals'])}</p>
-          <p class="lead-card__reg">{icon('shield')}PMDC registration no. 00000-P</p>
-        </figcaption>
-      </figure>
-      <div class="about__copy">
-        <h2 class="display h2" id="about-title">About {e(clinic)}</h2>
+      <div class="about__media" data-reveal="left">
+        {about_main}
+        {about_second}
+        <div class="about__badge"><div><strong>{lead['years']}+</strong><span>years of experience</span></div></div>
+      </div>
+      <div class="about__copy" data-reveal="right">
+        <p class="kicker">About the clinic</p>
+        <h2 class="display h2" id="about-title">Trusted {e(lower_name(spec['name']))} care in {e(spec['city'])}</h2>
         <p class="about__lede">{e(clinic)} is {article(spec['name'])} {e(lower_name(spec['name']))} clinic in {e(spec['area'])}, {e(spec['city'])}, led by {e(lead['name'])}.</p>
         <p>{e(lead['name'])} has {lead['years']} years of experience and holds {e(lead['quals'])}. The clinic team sees {e(AUDIENCE.get(spec['slug'], 'adults and children'))}, explains every diagnosis in plain language, and shares fees before any treatment starts.</p>
-        <dl class="facts facts--about">
-          <div><dt>Consultation fee</dt><dd>{e(fee_range(spec))}</dd></div>
-          <div><dt>Clinic hours</dt><dd>{e(hours_short)}</dd></div>
-          <div><dt>Languages</dt><dd>Urdu and English</dd></div>
-        </dl>
+        <ul class="ticks">{ticks}</ul>
+        <div class="signature">
+          {avatar(lead, '')}
+          <div>
+            <p class="signature__name">{e(lead['name'])}</p>
+            <p class="signature__meta">{e(lead['quals'])}</p>
+            <p class="signature__reg">{icon('shield')}PMDC registration no. 00000-P</p>
+          </div>
+        </div>
+        <div class="about__actions">
+          <button class="btn btn-accent" type="button" data-book{book_attrs(lead)}>Book with {e(lead['name'])}</button>
+          <a class="btn btn-ghost" href="#doctors">Meet our doctors{icon('arrow', 'icon icon--arrow')}</a>
+        </div>
       </div>
     </div>
-  </section>
+  </section>"""
 
-  <section class="section section--tint" id="treatments" aria-labelledby="treatments-title">
+    service_cards = "".join(
+        f"""<li class="service-card" data-reveal style="--d:{(i % 3) * 90}ms">
+          <span class="service-card__icon">{icon(SERVICE_ICONS[i % 6] or spec['icon'])}</span>
+          <h3>{e(s['name'])}</h3>
+          <p>{e(s['desc'])}</p>
+          <button class="service-card__link" type="button" data-book>Book this{icon('arrow')}</button>
+        </li>""" for i, s in enumerate(spec["services"]))
+    conditions = "".join(f"<li>{e(c)}</li>" for c in spec["conditions"])
+    services = f"""<section class="section section--tint" id="treatments" aria-labelledby="treatments-title">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head section-head--center" data-reveal>
+        <p class="kicker">Treatments</p>
         <h2 class="display h2" id="treatments-title">Treatments and services</h2>
         <p>Ask when you book if you need a specific procedure. Fees are shared before treatment starts.</p>
       </div>
-      <ul class="services">{services}</ul>
-      <div class="conditions">
+      <ul class="services">{service_cards}</ul>
+      <div class="conditions" data-reveal>
         <h3 class="conditions__title">Conditions we treat</h3>
         <ul class="tags">{conditions}</ul>
       </div>
     </div>
-  </section>
+  </section>"""
 
-  <section class="section" id="doctors" aria-labelledby="doctors-title">
+    why_items = [
+        ("award", "Qualified specialists", f"Experienced {who_pl} with recognised qualifications."),
+        ("receipt", "Fees shared upfront", "You'll know the cost before any test or treatment starts."),
+        ("clock", "Short waiting times", "Book on WhatsApp and arrive close to your token time."),
+        ("sparkle", "Clean, modern clinic", "Sterilised equipment and a comfortable, private waiting area."),
+    ]
+    why_list = "".join(
+        f'<li class="why__item" data-reveal style="--d:{i * 90}ms">{icon(ic)}<h3>{e(t)}</h3><p>{e(dsc)}</p></li>'
+        for i, (ic, t, dsc) in enumerate(why_items))
+    why_img = media(spec["why_photo"], f"A doctor with a patient at {clinic}", "why__media", (560, 900), "(min-width: 900px) 44vw, 92vw", (4, 4.4), spec["icon"])
+    why = f"""<section class="why" aria-labelledby="why-title">
+    <div class="container why__grid">
+      <div class="why__media-wrap" data-reveal="left">
+        {why_img}
+        <div class="float-card float-card--bob"><span class="float-card__icon">{icon('users')}</span><div><strong>{spec['patients']:,}+ patients</strong><span>have trusted {e(d['short'])}</span></div></div>
+      </div>
+      <div class="why__copy">
+        <p class="kicker" data-reveal>Why choose us</p>
+        <h2 class="display h2" id="why-title" data-reveal>Why patients choose {e(d['short'])}</h2>
+        <p data-reveal>Good care starts with being listened to. Here's what you can expect from every visit.</p>
+        <ul class="why__list">{why_list}</ul>
+      </div>
+    </div>
+  </section>"""
+
+    doc_cards = "".join(
+        f"""<li class="doc-card" data-reveal style="--d:{i * 100}ms">
+          {media(doc['photo'], f"Portrait of {doc['name']}", 'doc-card__photo', (420, 640), '(min-width: 1080px) 380px, (min-width: 640px) 46vw, 92vw', (4, 4.3), spec['icon'], faces=True,
+                 extra=f'<span class="doc-card__exp">{doc["years"]} years experience</span><div class="doc-card__hover"><button class="btn btn-light btn-block" type="button" data-book{book_attrs(doc)}>{icon("calendar-check")}Book appointment</button></div>')}
+          <div class="doc-card__body">
+            <h3 class="doc-card__name">{e(doc['name'])}</h3>
+            <p class="doc-card__quals">{e(doc['quals'])}</p>
+            <ul class="meta">
+              <li>{icon('star', 'icon icon--star', filled=True)}<span><strong>{doc['rating']}</strong> ({doc['reviews']} reviews)</span></li>
+              <li>{icon('calendar')}Sees patients {e(doc['days'])}</li>
+            </ul>
+            <div class="doc-card__foot">
+              <div><p class="doc-card__fee"><span>Consultation fee</span>{rs(doc['fee'])}</p><p class="doc-card__slot">{icon('clock')}Next: {e(doc['slot'])}</p></div>
+              <button class="btn btn-accent btn-sm" type="button" data-book{book_attrs(doc)}>Book</button>
+            </div>
+          </div>
+        </li>""" for i, doc in enumerate(docs))
+    doctors = f"""<section class="section" id="doctors" aria-labelledby="doctors-title">
     <div class="container">
-      <div class="section-head">
-        <h2 class="display h2" id="doctors-title">Our doctors</h2>
+      <div class="section-head section-head--center" data-reveal>
+        <p class="kicker">Our team</p>
+        <h2 class="display h2" id="doctors-title">Meet our doctors</h2>
         <p>Fees are per consultation. The time shown is each doctor's next free slot.</p>
       </div>
-      <ul class="doc-rows">{''.join(doctor_row(doc) for doc in docs)}</ul>
+      <ul class="doc-grid">{doc_cards}</ul>
     </div>
-  </section>
+  </section>"""
 
-  <section class="section section--line" aria-labelledby="signs-title">
+    gallery_items = [(spec["image2"], "Consultation room")] + GALLERY
+    gallery_html = "".join(
+        f"""<figure class="gallery__item media{'' if ref else ' is-fallback'}" data-reveal="zoom" style="--d:{i * 80}ms">
+          {picture(ref, f'{cap_} at {clinic}', (480, 800), '(min-width: 900px) 40vw, 92vw', (4, 3))}
+          <div class="media__fallback" aria-hidden="true">{icon(spec['icon'])}</div>
+          <figcaption>{e(cap_)}</figcaption>
+        </figure>""" for i, (ref, cap_) in enumerate(gallery_items))
+    gallery = f"""<section class="section section--tint" aria-labelledby="gallery-title">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <p class="kicker">Inside the clinic</p>
+        <h2 class="display h2" id="gallery-title">A calm, clean place to get better</h2>
+      </div>
+      <div class="gallery">{gallery_html}</div>
+    </div>
+  </section>"""
+
+    signs = "".join(f'<li data-reveal style="--d:{i * 60}ms">{icon("check")}<span>{e(s)}</span></li>' for i, s in enumerate(spec["signs"]))
+    if spec.get("alert"):
+        side = f"""<aside class="callout callout--alert" role="note" data-reveal="right">
+          {icon('alert', 'icon callout__icon')}
+          <div><h3>When it can't wait</h3><p>{e(spec['alert'])}</p>
+          <a class="btn btn-ghost btn-sm" href="tel:1122">{icon('phone')}Call 1122</a></div>
+        </aside>"""
+    else:
+        side = f"""<aside class="callout" data-reveal="right">
+          {icon('message', 'icon callout__icon')}
+          <div><h3>Not sure if you need to come in?</h3>
+          <p>Send us a message on WhatsApp. Our team will tell you whether you need a visit and which doctor to see.</p>
+          <a class="btn btn-accent btn-sm" href="{e(wa_question)}" target="_blank" rel="noopener">{icon('message')}Message us on WhatsApp</a></div>
+        </aside>"""
+    when = f"""<section class="section" aria-labelledby="signs-title">
     <div class="container split">
       <div>
-        <h2 class="display h2" id="signs-title">When to see {article(who)} {e(who)}</h2>
+        <p class="kicker" data-reveal>Know the signs</p>
+        <h2 class="display h2" id="signs-title" data-reveal>When to see {article(who)} {e(who)}</h2>
         <ul class="checks">{signs}</ul>
       </div>
       {side}
     </div>
-  </section>
+  </section>"""
 
-  <section class="section section--scrub" id="reviews" aria-labelledby="reviews-title">
+    review_cards = "".join(
+        f"""<li class="review" data-reveal style="--d:{i * 100}ms">
+          <span class="review__mark" aria-hidden="true">&ldquo;</span>
+          {stars()}
+          <blockquote><p>{e(r['q'])}</p></blockquote>
+          <p class="review__by"><span class="review__avatar" aria-hidden="true">{e(''.join(w[0] for w in r['n'].replace('.', '').split()[:2]).upper())}</span>
+          <span><strong>{e(r['n'])}</strong><span>{e(r['c'])}</span></span></p>
+        </li>""" for i, r in enumerate(d["reviews"]))
+    reviews = f"""<section class="section section--tint" id="reviews" aria-labelledby="reviews-title">
     <div class="container">
-      <div class="section-head">
-        <h2 class="display h2" id="reviews-title">What our patients say</h2>
+      <div class="reviews-head">
+        <div class="section-head" data-reveal>
+          <p class="kicker">Patient reviews</p>
+          <h2 class="display h2" id="reviews-title">What our patients say</h2>
+        </div>
+        <div class="rating-box" data-reveal="right">
+          <span class="rating-box__num">{spec['avg_rating']}</span>
+          <div>{stars()}<p>Based on {spec['review_count']:,} reviews</p></div>
+        </div>
       </div>
-      <ul class="quotes">{reviews}</ul>
+      <ul class="reviews">{review_cards}</ul>
     </div>
-  </section>
+  </section>"""
 
-  <section class="section" aria-labelledby="faq-title">
+    faq_items = "".join(
+        f'<details class="faq" data-reveal style="--d:{i * 60}ms"><summary><span>{e(f["q"])}</span>{icon("plus", "icon faq__icon")}</summary>'
+        f'<div class="faq__answer"><p>{e(f["a"])}</p></div></details>' for i, f in enumerate(spec["faqs"]))
+    faq = f"""<section class="section" aria-labelledby="faq-title">
     <div class="container split">
-      <div class="split__head">
+      <div class="split__head" data-reveal="left">
+        <p class="kicker">FAQs</p>
         <h2 class="display h2" id="faq-title">Common questions</h2>
-        <p>Still have a question? <a class="text-link" href="{e(wa(f'Assalam o Alaikum, I have a question for {clinic}.'))}" target="_blank" rel="noopener">Ask us on WhatsApp</a>.</p>
+        <p>Answers to what patients ask us most often.</p>
+        <div class="faq-card">
+          <strong>Still have a question?</strong>
+          <p>Our team replies on WhatsApp during clinic hours.</p>
+          <a class="btn btn-accent btn-sm" href="{e(wa_question)}" target="_blank" rel="noopener">{icon('message')}Ask on WhatsApp</a>
+        </div>
       </div>
-      <div class="faqs">{faqs}</div>
+      <div class="faqs">{faq_items}</div>
     </div>
-  </section>
+  </section>"""
 
-  <section class="section section--line" id="visit" aria-labelledby="visit-title">
+    hours_rows = "".join(f"<div><dt>{e(day)}</dt><dd>{e(time)}</dd></div>" for day, time in spec["hours"])
+    visit = f"""<section class="section section--line" id="visit" aria-labelledby="visit-title">
     <div class="container visit">
-      <div class="visit__info">
-        <h2 class="display h2" id="visit-title">Visit the clinic</h2>
+      <div class="visit__info" data-reveal="left">
+        <p class="kicker">Visit us</p>
+        <h2 class="display h2" id="visit-title">Find the clinic</h2>
         <p class="visit__address">{icon('pin')}<span>{e(spec['address'])}</span></p>
         <dl class="hours">{hours_rows}</dl>
         <ul class="contact-list contact-list--visit">
@@ -596,12 +798,16 @@ def build_clinic(spec: dict) -> str:
           <li>{icon('mail')}<a href="mailto:{e(SITE['email'])}">{e(SITE['email'])}</a></li>
         </ul>
       </div>
-      <div class="map-card">
+      <div class="map-card" data-reveal="right">
         <div class="map-card__map" aria-hidden="true">
+          <span class="map-card__block" style="left:8%;top:10%;width:22%;height:30%"></span>
+          <span class="map-card__block" style="left:44%;top:6%;width:30%;height:22%"></span>
+          <span class="map-card__block" style="left:62%;top:66%;width:28%;height:26%"></span>
+          <span class="map-card__block" style="left:6%;top:70%;width:24%;height:22%"></span>
           <span class="map-card__road map-card__road--h"></span>
           <span class="map-card__road map-card__road--v"></span>
           <span class="map-card__road map-card__road--d"></span>
-          <span class="map-card__pin">{icon(spec['icon'])}</span>
+          <span class="map-card__pin"><span class="map-card__pin-head">{icon(spec['icon'])}</span></span>
         </div>
         <div class="map-card__foot">
           <div><p class="map-card__name">{e(clinic)}</p><p>{e(spec['area'])}, {e(spec['city'])}</p></div>
@@ -609,24 +815,38 @@ def build_clinic(spec: dict) -> str:
         </div>
       </div>
     </div>
-  </section>
+  </section>"""
 
-  <section class="cta-band">
-    <div class="container cta-band__inner">
+    cta_photo = media(spec["image"], "", "cta-band__photo", (900, 1600), "100vw", (16, 7), spec["icon"])
+    cta = f"""<section class="cta-band">
+    {cta_photo}
+    <div class="container cta-band__inner" data-reveal>
       <div>
         <h2 class="display h2">Ready to see {article(who)} {e(who)}?</h2>
-        <p>Pick a day and time. The clinic confirms on WhatsApp.</p>
+        <p>Pick a day and time that suits you. The clinic confirms your appointment on WhatsApp.</p>
       </div>
-      <button class="btn btn-light" type="button" data-book>Book appointment</button>
+      <div class="cta-band__actions">
+        <button class="btn btn-light btn-lg" type="button" data-book>{icon('calendar-check')}Book appointment</button>
+        <a class="btn btn-outline-light btn-lg" href="{tel(SITE['phone'])}">{icon('phone')}Call now</a>
+      </div>
     </div>
-  </section>
-</main>
+  </section>"""
 
-<footer class="site-footer">
-  <div class="container site-footer__grid site-footer__grid--clinic">
+    footer = f"""<footer class="site-footer">
+  <div class="container site-footer__grid">
     <div class="site-footer__brand">
       {brand(spec)}
-      <p>{e(clinic)}, {e(spec['area'])}, {e(spec['city'])}. {e(spec['alias'])}.</p>
+      <p>{e(clinic)} in {e(spec['area'])}, {e(spec['city'])}. {e(spec['alias'])}.</p>
+    </div>
+    <div>
+      <h2 class="site-footer__title">Quick links</h2>
+      <ul class="site-footer__links">
+        <li><a href="#about">About the clinic</a></li>
+        <li><a href="#treatments">Treatments</a></li>
+        <li><a href="#doctors">Our doctors</a></li>
+        <li><a href="#reviews">Patient reviews</a></li>
+        <li><a href="#visit">Contact</a></li>
+      </ul>
     </div>
     <div>
       <h2 class="site-footer__title">Clinic hours</h2>
@@ -645,14 +865,33 @@ def build_clinic(spec: dict) -> str:
     <p>&copy; {YEAR} {e(clinic)}. Demo website by {e(SITE['agency'])}.</p>
     <p>Doctor names, fees, reviews and photos on this demo are placeholders.</p>
   </div>
-</footer>
+</footer>"""
 
-<div class="action-bar" aria-label="Quick actions">
+    body = f"""{header(spec)}
+<main id="main">
+  {hero}
+  {stats}
+  {about}
+  {services}
+  {why}
+  {doctors}
+  {gallery}
+  {when}
+  {reviews}
+  {faq}
+  {visit}
+  {cta}
+</main>
+{footer}
+<a class="wa-float" href="{e(wa(f'Assalam o Alaikum, I would like to book an appointment at {clinic}.'))}" target="_blank" rel="noopener">{icon('message')}<span class="wa-float__label">Chat on WhatsApp</span><span class="visually-hidden">Chat with the clinic on WhatsApp</span></a>
+<div class="action-bar">
   <a class="btn btn-ghost" href="{tel(SITE['phone'])}">{icon('phone')}Call</a>
   <button class="btn btn-accent" type="button" data-book>Book appointment</button>
 </div>
 {booking_dialog(spec)}"""
 
+    title = f"{clinic}: {who_pl} in {spec['city']}"
+    desc = f"{clinic} in {spec['area']}, {spec['city']}. Book {article(who)} {who} for {spec['for'].lower()} and more."
     return (f"{head(title, desc, url, spec['accent'])}\n"
             f'<body class="clinic-site" data-whatsapp="{e(SITE["whatsapp"])}" data-clinic="{e(clinic)}" style="{theme(spec)}">\n'
             f"{body}\n</body>\n</html>\n")
@@ -664,17 +903,15 @@ def build_clinic(spec: dict) -> str:
 def build_catalog() -> str:
     base = SITE["baseUrl"].rstrip("/")
     items = "".join(f"""<li class="demo-item" style="{theme(s)}">
-  <div class="plate plate--static">
-    <span class="plate__icon">{icon(s['icon'])}</span>
-    <span class="plate__text">
-      <span class="plate__name">{e(s['plate'])}</span>
-      <span class="plate__for">{e(s['demo']['clinic'])}</span>
-    </span>
-  </div>
-  <p class="demo-item__url"><span data-url="{e(s['demo']['path'])}/">{e(base)}/{e(s['demo']['path'])}/</span></p>
-  <div class="demo-item__actions">
-    <a class="btn btn-ghost btn-sm" href="{e(s['demo']['path'])}/" target="_blank" rel="noopener">{icon('external')}Open</a>
-    <button class="btn btn-accent btn-sm" type="button" data-copy="{e(s['demo']['path'])}/">{icon('copy')}<span>Copy link</span></button>
+  {media(s['image'], '', 'demo-item__thumb', (200,), '96px', (1, 1), s['icon'])}
+  <div class="demo-item__body">
+    <p class="demo-item__name">{e(s['plate'])}</p>
+    <p class="demo-item__clinic">{e(s['demo']['clinic'])}</p>
+    <p class="demo-item__url"><span data-url="{e(s['demo']['path'])}/">{e(base)}/{e(s['demo']['path'])}/</span></p>
+    <div class="demo-item__actions">
+      <a class="btn btn-ghost btn-sm" href="{e(s['demo']['path'])}/" target="_blank" rel="noopener">{icon('external')}Open</a>
+      <button class="btn btn-accent btn-sm" type="button" data-copy="{e(s['demo']['path'])}/">{icon('copy')}<span>Copy link</span></button>
+    </div>
   </div>
 </li>""" for s in SPECS)
     body = f"""
@@ -699,10 +936,10 @@ def build_catalog() -> str:
 
 def build_404() -> str:
     body = """
-<main id="main" class="notfound ecg">
+<main id="main" class="notfound">
   <div class="container notfound__inner">
     <div class="pulse pulse--flat" aria-hidden="true">
-      <svg viewBox="0 0 1200 100" preserveAspectRatio="none" focusable="false"><path class="pulse__base" vector-effect="non-scaling-stroke" d="M0 62H1200"/></svg>
+      <svg viewBox="0 0 1200 100" preserveAspectRatio="none" focusable="false"><path vector-effect="non-scaling-stroke" d="M0 62H1200"/></svg>
     </div>
     <h1 class="display notfound__title">This page has no pulse.</h1>
     <p>The link may be old or mistyped. Check the address and try again.</p>

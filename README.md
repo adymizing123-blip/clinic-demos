@@ -21,7 +21,17 @@
 | `/urology/` | Urology | Renal Care Urology Clinic |
 | `/neuro/` | Neurology | NeuroCare Brain and Nerve Clinic |
 
-Each site has its own colour theme and one of three hero layouts, plus: about the lead doctor, treatments, conditions, doctors with fees and timings, when to see a specialist, patient reviews, FAQs, clinic hours and location, a WhatsApp booking form, and a Call / Book bar on mobile.
+Each site has its own colour theme and one of three photo-led hero layouts (photo collage, full-width photo with a booking card, or centred headline over a wide photo), plus:
+
+- a stats strip with count-up numbers
+- about the lead doctor, with photos and an experience badge
+- treatment cards and conditions treated
+- a "why choose us" section
+- doctor cards with photos, fees, next free slot and a hover Book button
+- a clinic photo gallery, warning signs, patient reviews, FAQs
+- clinic hours, map card and contact details
+- a WhatsApp booking form, a floating WhatsApp button, and a Call / Book bar on mobile
+- scroll-in animations and hover effects (switched off for visitors who prefer reduced motion)
 
 Plain HTML, CSS and JavaScript. No framework and no `npm install`.
 
@@ -81,7 +91,12 @@ Vercel redeploys automatically after every push.
 
 ## Images
 
-Photos are placeholders from Unsplash. If one fails to load, the site shows a designed placeholder in that specialty's colour. To use your own photos, put them in `src/assets/img/`, set `"image": "assets/img/your-photo.jpg"` for that specialty in `data/specialties.json`, and rebuild.
+Photos are free Unsplash photos (Unsplash License), loaded from Unsplash's image CDN. Every photo id was checked against Unsplash before use. If a photo ever fails to load, the site shows a designed placeholder in that specialty's colour.
+
+- Specialty photos: `"image"` (hero) and `"image2"` (second photo) in `data/specialties.json`
+- Doctor portraits, gallery and "why choose us" photos: `DOCTOR_PHOTOS`, `GALLERY` and `WHY_PHOTOS` near the top of `scripts/build.py`
+
+To use your own photo, put it in `src/assets/img/`, set the value to `assets/img/your-photo.jpg`, and rebuild.
 
 ## Good to know
 

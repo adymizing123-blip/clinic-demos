@@ -65,6 +65,23 @@
     }
 
     dialog.addEventListener("close", () => { if (opener) opener.focus(); });
+
+    const quick = $("[data-quick]");
+    if (quick) {
+      quick.addEventListener("submit", (e) => {
+        e.preventDefault();
+        open(quick.querySelector("button[type=submit]"));
+        form.name.value = quick.name.value;
+        form.phone.value = quick.phone.value;
+        const day = quick.day.value;
+        const radio = form.querySelector(`input[name="day"][value="${day}"]`);
+        if (radio) { radio.checked = true; dateInput.hidden = day !== "date"; }
+        setTimeout(() => {
+          const next = !form.name.value.trim() ? form.name : !form.phone.value.trim() ? form.phone : (day === "date" ? dateInput : form.doctor);
+          next.focus();
+        }, 60);
+      });
+    }
     document.addEventListener("click", (e) => {
       const trigger = e.target.closest("[data-book]");
       if (trigger) { e.preventDefault(); open(trigger); return; }
@@ -149,7 +166,61 @@
     });
   }
 
+  /* ---------- Header shadow on scroll ---------- */
+  function initHeader() {
+    const header = $(".site-header");
+    if (!header) return;
+    const update = () => header.classList.toggle("is-scrolled", window.scrollY > 40);
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+  }
+
+  /* ---------- Reveal sections as they scroll into view ---------- */
+  function initReveal() {
+    const items = $$("[data-reveal]");
+    if (!items.length) return;
+    if (!("IntersectionObserver" in window)) { items.forEach((el) => el.classList.add("is-visible")); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) { entry.target.classList.add("is-visible"); io.unobserve(entry.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+    items.forEach((el) => io.observe(el));
+  }
+
+  /* ---------- Count-up numbers ---------- */
+  function initCounters() {
+    const nums = $$("[data-count]");
+    if (!nums.length) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const render = (el, value) => {
+      const decimals = Number(el.dataset.decimals || 0);
+      el.textContent = value.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + (el.dataset.suffix || "");
+    };
+    const run = (el) => {
+      const target = Number(el.dataset.count);
+      if (reduce) { render(el, target); return; }
+      const start = performance.now();
+      const dur = 1600;
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - t, 3);
+        render(el, target * eased);
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    if (!("IntersectionObserver" in window)) { nums.forEach((el) => render(el, Number(el.dataset.count))); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => { if (entry.isIntersecting) { run(entry.target); io.unobserve(entry.target); } });
+    }, { threshold: 0.6 });
+    nums.forEach((el) => { render(el, 0); io.observe(el); });
+  }
+
   initNav();
+  initHeader();
+  initReveal();
+  initCounters();
   initBooking();
   initCopy();
 })();
