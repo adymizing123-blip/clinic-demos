@@ -1,0 +1,402 @@
+{
+  "general-physician": {
+    "path": "family-doctor",
+    "clinic": "Family Health Clinic",
+    "short": "Family Health",
+    "tag": "General physician clinic",
+    "headline": "Care for the whole family, from fevers to yearly checkups.",
+    "layout": "a",
+    "reviews": [
+      {
+        "q": "Dr. sahib took time to explain my father's BP reports properly. We've been coming here for two years now.",
+        "n": "Usman T.",
+        "c": "Patient's son"
+      },
+      {
+        "q": "Booked an evening slot on WhatsApp and was seen within fifteen minutes of arriving.",
+        "n": "Sadia K.",
+        "c": "Fever and flu visit"
+      },
+      {
+        "q": "The full body checkup was well organised, and the follow-up call about my results was a nice touch.",
+        "n": "Bilal A.",
+        "c": "Annual checkup"
+      }
+    ]
+  },
+  "dermatology": {
+    "path": "skin",
+    "clinic": "Derma Care Skin Clinic",
+    "short": "Derma Care",
+    "tag": "Skin and hair clinic",
+    "headline": "Healthy skin and hair, treated by a dermatologist.",
+    "layout": "b",
+    "reviews": [
+      {
+        "q": "My acne marks have faded a lot after four peel sessions. The doctor set honest expectations from day one.",
+        "n": "Hira N.",
+        "c": "Chemical peels"
+      },
+      {
+        "q": "Finally a clinic that treated my hair fall properly instead of just selling me shampoo.",
+        "n": "Faisal M.",
+        "c": "Hair fall treatment"
+      },
+      {
+        "q": "Clean clinic, female staff for laser sessions, and they always run on time.",
+        "n": "Amna S.",
+        "c": "Laser hair removal"
+      }
+    ]
+  },
+  "dental": {
+    "path": "dental",
+    "clinic": "Pearl Dental Studio",
+    "short": "Pearl Dental",
+    "tag": "Dental studio",
+    "headline": "Gentle dental care for a smile you're happy to show.",
+    "layout": "c",
+    "reviews": [
+      {
+        "q": "I was scared of root canals, but it felt like a normal filling. No pain at all afterwards.",
+        "n": "Kamran S.",
+        "c": "Root canal treatment"
+      },
+      {
+        "q": "My daughter's braces were explained step by step, with clear costs before we started.",
+        "n": "Rabia J.",
+        "c": "Braces for her daughter"
+      },
+      {
+        "q": "Quick scaling and polishing in my lunch break. The dentist was very gentle with my sensitive gums.",
+        "n": "Owais H.",
+        "c": "Scaling and polishing"
+      }
+    ]
+  },
+  "gynecology": {
+    "path": "gynae",
+    "clinic": "Noor Women's Health Clinic",
+    "short": "Noor Women's Health",
+    "tag": "Gynae and maternity clinic",
+    "headline": "Women's health and pregnancy care with a doctor you trust.",
+    "layout": "a",
+    "reviews": [
+      {
+        "q": "She looked after me through my whole pregnancy and the delivery. I always felt listened to.",
+        "n": "Mehwish A.",
+        "c": "Pregnancy care"
+      },
+      {
+        "q": "After years of irregular periods, I finally have a PCOS plan that's working.",
+        "n": "Sana R.",
+        "c": "PCOS treatment"
+      },
+      {
+        "q": "Female doctor, female staff, and a private waiting area. Exactly what I was looking for.",
+        "n": "Zainab F.",
+        "c": "Gynae consultation"
+      }
+    ]
+  },
+  "pediatrics": {
+    "path": "child",
+    "clinic": "Little Steps Children's Clinic",
+    "short": "Little Steps",
+    "tag": "Children's clinic",
+    "headline": "Caring for your child from the first vaccine to the teen years.",
+    "layout": "b",
+    "reviews": [
+      {
+        "q": "Our son had a high fever at night. We got a morning slot and the doctor was so calm with him.",
+        "n": "Kamran and Sara",
+        "c": "Parents of a 3-year-old"
+      },
+      {
+        "q": "They send a WhatsApp reminder before every vaccine, so we've never missed one.",
+        "n": "Nida Q.",
+        "c": "Vaccinations"
+      },
+      {
+        "q": "The play corner keeps the kids busy, and the doctor never rushes us.",
+        "n": "Adeel R.",
+        "c": "Regular checkups"
+      }
+    ]
+  },
+  "orthopedics": {
+    "path": "bones",
+    "clinic": "Motion Bone and Joint Centre",
+    "short": "Motion",
+    "tag": "Bone and joint centre",
+    "headline": "Move without pain again.",
+    "layout": "c",
+    "reviews": [
+      {
+        "q": "Three other doctors told me I needed knee surgery. Here they tried physio and injections first, and it worked.",
+        "n": "Tariq M.",
+        "c": "Knee arthritis"
+      },
+      {
+        "q": "My son's fracture was set quickly and the follow-ups were well planned.",
+        "n": "Farah B.",
+        "c": "Fracture care"
+      },
+      {
+        "q": "Clear explanation of my MRI and a realistic recovery plan for my back.",
+        "n": "Junaid K.",
+        "c": "Slip disc"
+      }
+    ]
+  },
+  "ent": {
+    "path": "ent",
+    "clinic": "ClearSound ENT Clinic",
+    "short": "ClearSound",
+    "tag": "ENT clinic",
+    "headline": "Ear, nose and throat care for adults and children.",
+    "layout": "a",
+    "reviews": [
+      {
+        "q": "My sinus problem of five years is finally under control after the nasal endoscopy.",
+        "n": "Shahid I.",
+        "c": "Sinusitis"
+      },
+      {
+        "q": "They removed the ear wax safely in minutes. I could hear properly again straight away.",
+        "n": "Bushra L.",
+        "c": "Ear wax removal"
+      },
+      {
+        "q": "The doctor was patient with my daughter before her tonsil surgery and everything went smoothly.",
+        "n": "Imran Z.",
+        "c": "Tonsil surgery"
+      }
+    ]
+  },
+  "eye-care": {
+    "path": "eye",
+    "clinic": "Clear View Eye Clinic",
+    "short": "Clear View",
+    "tag": "Eye clinic",
+    "headline": "Clear vision and healthy eyes for every age.",
+    "layout": "b",
+    "reviews": [
+      {
+        "q": "My mother's cataract surgery took less than half an hour, and she was reading again the next week.",
+        "n": "Asad W.",
+        "c": "Cataract surgery"
+      },
+      {
+        "q": "Thorough eye test for my kids, with no pressure to buy expensive frames.",
+        "n": "Kiran P.",
+        "c": "Children's eye test"
+      },
+      {
+        "q": "They checked whether LASIK was right for me before anything else. I'm glasses-free now.",
+        "n": "Hamza D.",
+        "c": "LASIK"
+      }
+    ]
+  },
+  "cardiology": {
+    "path": "heart",
+    "clinic": "Heartline Cardiac Clinic",
+    "short": "Heartline",
+    "tag": "Cardiac clinic",
+    "headline": "Expert heart care, close to home.",
+    "layout": "c",
+    "reviews": [
+      {
+        "q": "ECG and echo done the same day, with the results explained right there. Very reassuring.",
+        "n": "Salman N.",
+        "c": "Chest pain check"
+      },
+      {
+        "q": "My father's BP had been high for years. It's been stable for six months now.",
+        "n": "Huma Y.",
+        "c": "Daughter of a patient"
+      },
+      {
+        "q": "The doctor explained my angiography report in simple Urdu. I understood my options.",
+        "n": "Waqas R.",
+        "c": "Heart follow-up"
+      }
+    ]
+  },
+  "physiotherapy": {
+    "path": "physio",
+    "clinic": "Active Life Physiotherapy",
+    "short": "Active Life",
+    "tag": "Physiotherapy clinic",
+    "headline": "Get back to moving freely.",
+    "layout": "a",
+    "reviews": [
+      {
+        "q": "After eight sessions my back pain from desk work is mostly gone, and I know which exercises to keep doing.",
+        "n": "Saad J.",
+        "c": "Back pain"
+      },
+      {
+        "q": "Home sessions for my mother after her knee replacement made a huge difference.",
+        "n": "Sidra O.",
+        "c": "Rehab after surgery"
+      },
+      {
+        "q": "Got back to cricket after a shoulder injury in six weeks.",
+        "n": "Talha F.",
+        "c": "Sports injury"
+      }
+    ]
+  },
+  "nutrition": {
+    "path": "diet",
+    "clinic": "Balanced Plate Nutrition Clinic",
+    "short": "Balanced Plate",
+    "tag": "Nutrition clinic",
+    "headline": "A diet plan that fits your life and your food.",
+    "layout": "b",
+    "reviews": [
+      {
+        "q": "Lost 9 kg in four months without giving up roti. The plan felt realistic.",
+        "n": "Aiman K.",
+        "c": "Weight loss"
+      },
+      {
+        "q": "My PCOS symptoms improved once I followed her plan. The weekly WhatsApp check-ins kept me going.",
+        "n": "Maryam T.",
+        "c": "PCOS diet"
+      },
+      {
+        "q": "She planned meals my whole family could eat, which made it easy to stick to.",
+        "n": "Arslan G.",
+        "c": "Diabetes diet"
+      }
+    ]
+  },
+  "psychiatry": {
+    "path": "mind",
+    "clinic": "Calm Mind Clinic",
+    "short": "Calm Mind",
+    "tag": "Mental health clinic",
+    "headline": "Talk to someone who understands, in confidence.",
+    "layout": "c",
+    "reviews": [
+      {
+        "q": "I was nervous about my first visit, but the doctor made me feel completely at ease.",
+        "n": "A patient",
+        "c": "Anxiety treatment"
+      },
+      {
+        "q": "Online sessions meant I could get help without anyone at home knowing. That mattered to me.",
+        "n": "A patient",
+        "c": "Online consultation"
+      },
+      {
+        "q": "My sleep has improved and I feel like myself again after three months.",
+        "n": "A patient",
+        "c": "Depression and sleep"
+      }
+    ]
+  },
+  "diabetes-endocrinology": {
+    "path": "diabetes",
+    "clinic": "Sugar Care Diabetes and Thyroid Centre",
+    "short": "Sugar Care",
+    "tag": "Diabetes and thyroid centre",
+    "headline": "Keep your sugar and thyroid under control.",
+    "layout": "a",
+    "reviews": [
+      {
+        "q": "My HbA1c came down from 9.2 to 6.8 in six months with their plan.",
+        "n": "Yasir B.",
+        "c": "Type 2 diabetes"
+      },
+      {
+        "q": "They trained me to use insulin at home step by step. I'm no longer scared of it.",
+        "n": "Asma H.",
+        "c": "Starting insulin"
+      },
+      {
+        "q": "My thyroid was finally diagnosed properly after years of feeling tired.",
+        "n": "Rida S.",
+        "c": "Thyroid clinic"
+      }
+    ]
+  },
+  "gastroenterology": {
+    "path": "gastro",
+    "clinic": "Gut Health Gastro and Liver Clinic",
+    "short": "Gut Health",
+    "tag": "Gastro and liver clinic",
+    "headline": "Relief for stomach, liver and digestive problems.",
+    "layout": "b",
+    "reviews": [
+      {
+        "q": "Years of acidity, finally diagnosed as H. pylori and treated in two weeks.",
+        "n": "Danish A.",
+        "c": "Acidity and ulcer"
+      },
+      {
+        "q": "The endoscopy was quick and painless with sedation. I went home within two hours.",
+        "n": "Saba M.",
+        "c": "Endoscopy"
+      },
+      {
+        "q": "My hepatitis C was cured with tablets in three months. Thank you, doctor sahib.",
+        "n": "Shahid U.",
+        "c": "Hepatitis C"
+      }
+    ]
+  },
+  "urology": {
+    "path": "urology",
+    "clinic": "Renal Care Urology Clinic",
+    "short": "Renal Care",
+    "tag": "Urology clinic",
+    "headline": "Kidney stone and urinary care, done right.",
+    "layout": "c",
+    "reviews": [
+      {
+        "q": "My kidney stone was removed with laser and I went home the same day.",
+        "n": "Zeeshan Q.",
+        "c": "Kidney stone"
+      },
+      {
+        "q": "The doctor explained my father's prostate options clearly, without rushing into surgery.",
+        "n": "Anum R.",
+        "c": "Daughter of a patient"
+      },
+      {
+        "q": "Recurring UTIs finally sorted after the right tests. Very professional clinic.",
+        "n": "Farah I.",
+        "c": "Urinary infections"
+      }
+    ]
+  },
+  "neurology": {
+    "path": "neuro",
+    "clinic": "NeuroCare Brain and Nerve Clinic",
+    "short": "NeuroCare",
+    "tag": "Brain and nerve clinic",
+    "headline": "Specialist care for headaches, fits, stroke and nerves.",
+    "layout": "a",
+    "reviews": [
+      {
+        "q": "My migraines went from twice a week to twice a month with the prevention plan.",
+        "n": "Noor E.",
+        "c": "Migraine"
+      },
+      {
+        "q": "My son's epilepsy is well controlled now. The doctor is always reachable for questions.",
+        "n": "Haris V.",
+        "c": "Father of a patient"
+      },
+      {
+        "q": "After my father's stroke, the follow-up and rehab plan helped him walk again.",
+        "n": "Fahad L.",
+        "c": "Stroke follow-up"
+      }
+    ]
+  }
+}
