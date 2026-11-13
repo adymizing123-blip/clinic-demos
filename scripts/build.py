@@ -158,6 +158,7 @@ DOCTOR_PHOTOS = {
 }
 GALLERY = [("photo-1764727291644-5dcb0b1a0375", "Reception"), ("photo-1762625570087-6d98fca29531", "Waiting area"),
            ("photo-1704455306925-1401c3012117", "Treatment room")]
+SIGN_PHOTOS = ["photo-1758691461990-03b49d969495", "photo-1758691462430-81160850496c", "photo-1758691462071-757bca955439"]
 WHY_PHOTOS = ["photo-1758691462071-757bca955439", "photo-1758691463198-dc663b8a64e4", "photo-1666886573531-48d2e3c2b684"]
 FIRST = {
     "f": ["Ayesha", "Hira", "Sana", "Mahnoor", "Fatima", "Zainab", "Amna", "Rabia", "Mehwish", "Saba", "Nida", "Iqra",
@@ -235,6 +236,7 @@ def make_clinic(spec: dict, index: int) -> None:
     spec["address"] = f"{SITE['street']}, {area}, {city}"
     spec["hours"] = rng.choice(HOURS)
     spec["why_photo"] = WHY_PHOTOS[index % len(WHY_PHOTOS)]
+    spec["sign_photo"] = SIGN_PHOTOS[(index + 1) % len(SIGN_PHOTOS)]
     total_reviews = sum(d["reviews"] for d in doctors)
     spec["review_count"] = total_reviews
     spec["avg_rating"] = round(sum(d["rating"] for d in doctors) / len(doctors), 1)
@@ -456,7 +458,7 @@ def hero_copy(spec: dict, light: bool = False) -> str:
     call_cls = "btn-outline-light" if light else "btn-ghost"
     faces = "".join(avatar(doc, "", (96, 160), "46px") for doc in spec["doctors"])
     return f"""<div class="hero__copy">
-        <p class="hero__place" data-reveal><span class="hero__place-dot" aria-hidden="true"></span>{e(d['clinic'])}, {e(spec['area'])}, {e(spec['city'])}</p>
+        <p class="hero__place" data-reveal><span class="hero__place-dot" aria-hidden="true"></span><span>{e(d['clinic'])}<span class="hero__place-area">, {e(spec['area'])}</span>, {e(spec['city'])}</span></p>
         <h1 class="display hero__title" data-reveal style="--d:80ms">{e(d['headline'])}</h1>
         <p class="hero__lede" data-reveal style="--d:160ms">{e(spec['intro'])}</p>
         <div class="hero__actions" data-reveal style="--d:240ms">
@@ -537,7 +539,7 @@ def hero_b(spec: dict) -> str:
           <label for="q-day">Day</label>
           <select id="q-day" name="day"><option>Today</option><option>Tomorrow</option><option value="date">Pick a date</option></select>
         </div>
-        <p class="quick-book__slot">{icon('clock')}Next free slot: <strong>{e(next_slot)}</strong></p>
+        <p class="quick-book__slot">{icon('clock')}<span>Next free slot: <strong>{e(next_slot)}</strong></span></p>
         <button class="btn btn-accent btn-block btn-lg" type="submit">Continue booking{icon('arrow', 'icon icon--arrow')}</button>
       </form>
     </div>
@@ -566,6 +568,13 @@ def hero_c(spec: dict) -> str:
 # A clinic site
 # ---------------------------------------------------------------------------
 SERVICE_ICONS = [None, "clipboard", "sparkle", "shield", "calendar-check", "award"]
+# Where each card animates in from, by its position in a grid, so rows sweep in from the corners.
+GRID3 = ["top-left", "down", "top-right", "bottom-left", "up", "bottom-right"]
+GRID2 = ["top-left", "top-right", "bottom-left", "bottom-right"]
+
+
+def reveal(kind: str, delay: int = 0) -> str:
+    return f' data-reveal="{kind}" style="--d:{delay}ms"'
 
 
 def build_clinic(spec: dict) -> str:
@@ -581,7 +590,7 @@ def build_clinic(spec: dict) -> str:
 
     stats = f"""<section class="stats-band" aria-label="Clinic at a glance">
     <div class="container">
-      <div class="stats" data-reveal>
+      <div class="stats" data-reveal="zoom">
         <div class="stat"><span class="stat__num" data-count="{lead['years']}" data-suffix="+">{lead['years']}+</span><span class="stat__label">Years of experience</span></div>
         <div class="stat"><span class="stat__num" data-count="{spec['patients']}" data-suffix="+">{spec['patients']:,}+</span><span class="stat__label">Patients treated</span></div>
         <div class="stat"><span class="stat__num" data-count="{spec['avg_rating']}" data-decimals="1">{spec['avg_rating']}</span><span class="stat__label">Average patient rating</span></div>
@@ -624,13 +633,15 @@ def build_clinic(spec: dict) -> str:
   </section>"""
 
     service_cards = "".join(
-        f"""<li class="service-card" data-reveal style="--d:{(i % 3) * 90}ms">
+        f"""<li class="service-card"{reveal(GRID3[i % 6], (i % 3) * 90)}>
           <span class="service-card__icon">{icon(SERVICE_ICONS[i % 6] or spec['icon'])}</span>
           <h3>{e(s['name'])}</h3>
           <p>{e(s['desc'])}</p>
           <button class="service-card__link" type="button" data-book>Book this{icon('arrow')}</button>
         </li>""" for i, s in enumerate(spec["services"]))
-    conditions = "".join(f"<li>{e(c)}</li>" for c in spec["conditions"])
+    conditions = "".join(
+        f'<li{reveal("left" if i % 2 == 0 else "right", (i // 2) * 70)}>{icon("check")}<span>{e(c)}</span></li>'
+        for i, c in enumerate(spec["conditions"]))
     services = f"""<section class="section section--tint" id="treatments" aria-labelledby="treatments-title">
     <div class="container">
       <div class="section-head section-head--center" data-reveal>
@@ -639,9 +650,14 @@ def build_clinic(spec: dict) -> str:
         <p>Ask when you book if you need a specific procedure. Fees are shared before treatment starts.</p>
       </div>
       <ul class="services">{service_cards}</ul>
-      <div class="conditions" data-reveal>
-        <h3 class="conditions__title">Conditions we treat</h3>
-        <ul class="tags">{conditions}</ul>
+      <div class="conditions" data-reveal="up">
+        <div class="conditions__intro">
+          <span class="conditions__icon">{icon(spec['icon'])}</span>
+          <h3 class="conditions__title">Conditions we treat</h3>
+          <p>Don't see your problem here? Send us a message and the clinic team will tell you if we can help.</p>
+          <a class="btn btn-accent btn-sm" href="{e(wa_question)}" target="_blank" rel="noopener">{icon('message')}Ask on WhatsApp</a>
+        </div>
+        <ul class="conditions__grid">{conditions}</ul>
       </div>
     </div>
   </section>"""
@@ -653,7 +669,7 @@ def build_clinic(spec: dict) -> str:
         ("sparkle", "Clean, modern clinic", "Sterilised equipment and a comfortable, private waiting area."),
     ]
     why_list = "".join(
-        f'<li class="why__item" data-reveal style="--d:{i * 90}ms">{icon(ic)}<h3>{e(t)}</h3><p>{e(dsc)}</p></li>'
+        f'<li class="why__item"{reveal(GRID2[i], i * 90)}>{icon(ic)}<h3>{e(t)}</h3><p>{e(dsc)}</p></li>'
         for i, (ic, t, dsc) in enumerate(why_items))
     why_img = media(spec["why_photo"], f"A doctor with a patient at {clinic}", "why__media", (560, 900), "(min-width: 900px) 44vw, 92vw", (4, 4.4), spec["icon"])
     why = f"""<section class="why" aria-labelledby="why-title">
@@ -672,7 +688,7 @@ def build_clinic(spec: dict) -> str:
   </section>"""
 
     doc_cards = "".join(
-        f"""<li class="doc-card" data-reveal style="--d:{i * 100}ms">
+        f"""<li class="doc-card"{reveal(["left", "up", "right"][i % 3], i * 100)}>
           {media(doc['photo'], f"Portrait of {doc['name']}", 'doc-card__photo', (420, 640), '(min-width: 1080px) 380px, (min-width: 640px) 46vw, 92vw', (4, 4.3), spec['icon'], faces=True,
                  extra=f'<span class="doc-card__exp">{doc["years"]} years experience</span><div class="doc-card__hover"><button class="btn btn-light btn-block" type="button" data-book{book_attrs(doc)}>{icon("calendar-check")}Book appointment</button></div>')}
           <div class="doc-card__body">
@@ -701,7 +717,7 @@ def build_clinic(spec: dict) -> str:
 
     gallery_items = [(spec["image2"], "Consultation room")] + GALLERY
     gallery_html = "".join(
-        f"""<figure class="gallery__item media{'' if ref else ' is-fallback'}" data-reveal="zoom" style="--d:{i * 80}ms">
+        f"""<figure class="gallery__item media{'' if ref else ' is-fallback'}"{reveal(["left", "top-right", "right", "bottom-right"][i], i * 90)}>
           {picture(ref, f'{cap_} at {clinic}', (480, 800), '(min-width: 900px) 40vw, 92vw', (4, 3))}
           <div class="media__fallback" aria-hidden="true">{icon(spec['icon'])}</div>
           <figcaption>{e(cap_)}</figcaption>
@@ -716,15 +732,15 @@ def build_clinic(spec: dict) -> str:
     </div>
   </section>"""
 
-    signs = "".join(f'<li data-reveal style="--d:{i * 60}ms">{icon("check")}<span>{e(s)}</span></li>' for i, s in enumerate(spec["signs"]))
+    signs = "".join(f'<li{reveal("left", i * 70)}>{icon("check")}<span>{e(s)}</span></li>' for i, s in enumerate(spec["signs"]))
     if spec.get("alert"):
-        side = f"""<aside class="callout callout--alert" role="note" data-reveal="right">
+        side = f"""<aside class="callout callout--alert" role="note" data-reveal="top-right">
           {icon('alert', 'icon callout__icon')}
           <div><h3>When it can't wait</h3><p>{e(spec['alert'])}</p>
           <a class="btn btn-ghost btn-sm" href="tel:1122">{icon('phone')}Call 1122</a></div>
         </aside>"""
     else:
-        side = f"""<aside class="callout" data-reveal="right">
+        side = f"""<aside class="callout" data-reveal="top-right">
           {icon('message', 'icon callout__icon')}
           <div><h3>Not sure if you need to come in?</h3>
           <p>Send us a message on WhatsApp. Our team will tell you whether you need a visit and which doctor to see.</p>
@@ -737,12 +753,18 @@ def build_clinic(spec: dict) -> str:
         <h2 class="display h2" id="signs-title" data-reveal>When to see {article(who)} {e(who)}</h2>
         <ul class="checks">{signs}</ul>
       </div>
-      {side}
+      <div class="callout-stack">
+        {side}
+        <div class="sign-photo" data-reveal="bottom-right">
+          {media(spec["sign_photo"], f"A doctor with a patient at {clinic}", "sign-photo__media", (560, 900), "(min-width: 900px) 44vw, 92vw", (16, 11), spec["icon"])}
+          <p class="sign-photo__chip">{icon('calendar-check')}Same-day appointments available</p>
+        </div>
+      </div>
     </div>
   </section>"""
 
     review_cards = "".join(
-        f"""<li class="review" data-reveal style="--d:{i * 100}ms">
+        f"""<li class="review"{reveal(["right", "up", "left"][i % 3], i * 100)}>
           <span class="review__mark" aria-hidden="true">&ldquo;</span>
           {stars()}
           <blockquote><p>{e(r['q'])}</p></blockquote>
@@ -766,7 +788,7 @@ def build_clinic(spec: dict) -> str:
   </section>"""
 
     faq_items = "".join(
-        f'<details class="faq" data-reveal style="--d:{i * 60}ms"><summary><span>{e(f["q"])}</span>{icon("plus", "icon faq__icon")}</summary>'
+        f'<details class="faq"{reveal("right", i * 70)}><summary><span>{e(f["q"])}</span>{icon("plus", "icon faq__icon")}</summary>'
         f'<div class="faq__answer"><p>{e(f["a"])}</p></div></details>' for i, f in enumerate(spec["faqs"]))
     faq = f"""<section class="section" aria-labelledby="faq-title">
     <div class="container split">
